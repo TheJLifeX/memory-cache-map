@@ -5,7 +5,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "powershell rm ./lib/* && tsc",
-    "publish": "npm run build && npm publish"
+    "publish-library": "npm run build && npm publish"
   },
   "author": "Ulrich Tiofack",
   "license": "MIT",
