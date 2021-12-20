@@ -9,6 +9,7 @@
   },
   "author": "Ulrich Tiofack",
   "license": "MIT",
+  "type": "module",
   "files": [
     "lib/**/*"
   ],
