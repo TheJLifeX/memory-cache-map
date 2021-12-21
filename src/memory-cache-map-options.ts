@@ -4,7 +4,7 @@ export interface MemoryCacheMapOptions<V = any> {
    * Value in milliseconds.
    * 
    * @default
-   * Infinity // meaning cached values are never cleaned from the memory.
+   * Infinity // Meaning cached values are never cleaned from the memory.
    * 
    * @example
    * 10 * 60 * 1000 // 10 minutes
