@@ -16,6 +16,9 @@ export class MemoryCacheMap<K = string, V = any> {
 
   private readonly defaultTimeToLive = Infinity;
 
+  /**
+   * @param options - The passed options are applied for all values.
+   */
   constructor(options?: MemoryCacheMapOptions) {
     if (typeof options === 'undefined') {
       this.memoryCacheMapDefaultOptions = { timeToLive: this.defaultTimeToLive };
@@ -43,6 +46,8 @@ export class MemoryCacheMap<K = string, V = any> {
 
   /**
    * Set the `value` in the cache.
+   * 
+   * @param memoryCacheMapOptions - The passed options overwrite options passed through the constructor and are only applied for this `value`.
    */
   set(key: K, value: V, memoryCacheMapOptions?: MemoryCacheMapOptions): void {
     const timeout = this.handleTimeToLive(key, memoryCacheMapOptions);

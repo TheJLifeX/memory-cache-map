@@ -4,8 +4,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "powershell rm ./lib/* && tsc",
-    "publish-library": "npm run build && npm publish"
+    "build": "powershell rm ./dist/* -Recurse && tsc && powershell cp ./LICENSE,./package-lock.json,./package.json,./README.md ./dist/",
+    "publish-library": "npm run build && cd ./dist/ && npm publish && powershell rm ./dist/* -Recurse"
   },
   "author": "Ulrich Tiofack",
   "license": "MIT",
