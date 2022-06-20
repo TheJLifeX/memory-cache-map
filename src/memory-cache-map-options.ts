@@ -18,7 +18,7 @@ export interface MemoryCacheMapOptions<K = string, V = any> {
    * @param key - The key of the cached value.
    * @param value - The cached value that will be deleted.
    */
-  beforeDeleted?: (key: K, value: V) => void;
+  beforeDeleted?: (params: { key: K, value: V }) => void;
 
   /**
    * Maximum number of cached items.

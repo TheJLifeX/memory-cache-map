@@ -68,7 +68,7 @@ export class MemoryCacheMap<K = string, V = any> {
     }
 
     if (beforeDeleted) {
-      beforeDeleted(key, value);
+      beforeDeleted({ key, value });
     }
     this.cache.delete(key);
   }
