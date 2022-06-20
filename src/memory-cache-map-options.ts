@@ -3,11 +3,11 @@ export interface MemoryCacheMapOptions<K = string, V = any> {
    * Time to live of the cached value.
    * Value in milliseconds.
    * 
-   * @default
-   * Infinity // Meaning cached values are never cleaned from the memory.
-   * 
    * @example
    * 10 * 60 * 1000 // 10 minutes
+   * 
+   * @default
+   * undefined // Meaning cached values are never cleaned from the memory.
    */
   timeToLive?: number;
 
@@ -19,4 +19,13 @@ export interface MemoryCacheMapOptions<K = string, V = any> {
    * @param value - The cached value that will be deleted.
    */
   beforeDeleted?: (key: K, value: V) => void;
+
+  /**
+   * Maximum number of cached items.
+   * When the maximum number of cached items is reached, the oldest cached item is removed.
+   * 
+   * @default
+   * undefined // Meaning no limit.
+   */
+  maxSize?: number
 }
