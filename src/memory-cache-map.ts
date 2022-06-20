@@ -13,7 +13,20 @@ export class MemoryCacheMap<K = string, V = any> {
    */
   private readonly cache: Map<K, CacheContent<K, V>> = new Map<K, CacheContent<K, V>>();
 
-  constructor(private readonly memoryCacheMapOptions?: MemoryCacheMapOptions<K, V>) { }
+  private readonly memoryCacheMapDefaultOptions: MemoryCacheMapOptions<K, V>;
+
+  private readonly defaultTimeToLive = Infinity;
+
+  /**
+   * @param options - The passed options are applied for all values.
+   */
+  constructor(options?: MemoryCacheMapOptions<K, V>) {
+    if (typeof options === 'undefined') {
+      this.memoryCacheMapDefaultOptions = { timeToLive: this.defaultTimeToLive };
+    } else {
+      this.memoryCacheMapDefaultOptions = options;
+    }
+  }
 
   /**
    * Get a value from the cache.
@@ -34,6 +47,8 @@ export class MemoryCacheMap<K = string, V = any> {
 
   /**
    * Set the `value` in the cache.
+   * 
+   * @param memoryCacheMapOptions - The passed options overwrite options passed through the constructor and are only applied for this `value`.
    */
   set(key: K, value: V, memoryCacheMapOptions?: MemoryCacheMapOptions<K, V>): void {
     const { timeout, beforeDeleted } = this.handleMemoryCacheMapOptions(key, memoryCacheMapOptions);
@@ -63,7 +78,7 @@ export class MemoryCacheMap<K = string, V = any> {
    * Delete the cached value after the passed "time to live".
    */
   private handleMemoryCacheMapOptions(key: K, memoryCacheMapOptions?: MemoryCacheMapOptions<K, V>): Omit<CacheContent<K, V>, 'value'> {
-    const { timeToLive, beforeDeleted } = Object.assign({}, defaultMemoryCacheMapOptions, this.memoryCacheMapOptions, memoryCacheMapOptions);
+    const { timeToLive, beforeDeleted } = Object.assign({}, defaultMemoryCacheMapOptions, this.memoryCacheMapDefaultOptions, memoryCacheMapOptions);
     if (!timeToLive || timeToLive === Infinity) {
       return { beforeDeleted };
     }

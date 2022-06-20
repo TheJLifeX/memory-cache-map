@@ -7,7 +7,7 @@
       "dom"
     ],
     "declaration": true,
-    "outDir": "./lib",
+    "outDir": "./dist/lib",
     "strict": true
   },
   "include": [
