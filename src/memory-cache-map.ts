@@ -11,9 +11,9 @@ export class MemoryCacheMap<K = string, V = any> {
   /**
    * Here is where the values are cached.
    */
-  private readonly cache: Map<K, CacheContent<V>> = new Map<K, CacheContent<V>>();
+  private readonly cache: Map<K, CacheContent<K, V>> = new Map<K, CacheContent<K, V>>();
 
-  constructor(private readonly memoryCacheMapOptions?: MemoryCacheMapOptions<V>) { }
+  constructor(private readonly memoryCacheMapOptions?: MemoryCacheMapOptions<K, V>) { }
 
   /**
    * Get a value from the cache.
@@ -35,7 +35,7 @@ export class MemoryCacheMap<K = string, V = any> {
   /**
    * Set the `value` in the cache.
    */
-  set(key: K, value: V, memoryCacheMapOptions?: MemoryCacheMapOptions<V>): void {
+  set(key: K, value: V, memoryCacheMapOptions?: MemoryCacheMapOptions<K, V>): void {
     const { timeout, beforeDeleted } = this.handleMemoryCacheMapOptions(key, memoryCacheMapOptions);
     this.cache.set(key, { value, timeout, beforeDeleted });
   }
@@ -54,7 +54,7 @@ export class MemoryCacheMap<K = string, V = any> {
     }
 
     if (beforeDeleted) {
-      beforeDeleted(value);
+      beforeDeleted(key, value);
     }
     this.cache.delete(key);
   }
@@ -62,7 +62,7 @@ export class MemoryCacheMap<K = string, V = any> {
   /**
    * Delete the cached value after the passed "time to live".
    */
-  private handleMemoryCacheMapOptions(key: K, memoryCacheMapOptions?: MemoryCacheMapOptions<V>): Omit<CacheContent<V>, "value"> {
+  private handleMemoryCacheMapOptions(key: K, memoryCacheMapOptions?: MemoryCacheMapOptions<K, V>): Omit<CacheContent<K, V>, 'value'> {
     const { timeToLive, beforeDeleted } = Object.assign({}, defaultMemoryCacheMapOptions, this.memoryCacheMapOptions, memoryCacheMapOptions);
     if (!timeToLive || timeToLive === Infinity) {
       return { beforeDeleted };
@@ -76,7 +76,7 @@ export class MemoryCacheMap<K = string, V = any> {
   }
 }
 
-interface CacheContent<V> extends Pick<MemoryCacheMapOptions<V>, "beforeDeleted"> {
+interface CacheContent<K, V> extends Pick<MemoryCacheMapOptions<K, V>, 'beforeDeleted'> {
   value: V;
   /**
    * The timeout used to delete the cached value after the "time to live".
