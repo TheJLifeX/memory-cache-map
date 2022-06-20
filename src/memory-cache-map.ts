@@ -1,3 +1,4 @@
+import { defaultMemoryCacheMapOptions } from './default-memory-cache-map-options';
 import { MemoryCacheMapOptions } from './memory-cache-map-options';
 
 /**
@@ -10,16 +11,16 @@ export class MemoryCacheMap<K = string, V = any> {
   /**
    * Here is where the values are cached.
    */
-  private readonly cache: Map<K, CacheContent<V>> = new Map<K, CacheContent<V>>();
+  private readonly cache: Map<K, CacheContent<K, V>> = new Map<K, CacheContent<K, V>>();
 
-  private readonly memoryCacheMapDefaultOptions: MemoryCacheMapOptions;
+  private readonly memoryCacheMapDefaultOptions: MemoryCacheMapOptions<K, V>;
 
   private readonly defaultTimeToLive = Infinity;
 
   /**
    * @param options - The passed options are applied for all values.
    */
-  constructor(options?: MemoryCacheMapOptions) {
+  constructor(options?: MemoryCacheMapOptions<K, V>) {
     if (typeof options === 'undefined') {
       this.memoryCacheMapDefaultOptions = { timeToLive: this.defaultTimeToLive };
     } else {
@@ -49,9 +50,9 @@ export class MemoryCacheMap<K = string, V = any> {
    * 
    * @param memoryCacheMapOptions - The passed options overwrite options passed through the constructor and are only applied for this `value`.
    */
-  set(key: K, value: V, memoryCacheMapOptions?: MemoryCacheMapOptions): void {
-    const timeout = this.handleTimeToLive(key, memoryCacheMapOptions);
-    this.cache.set(key, { value, timeout });
+  set(key: K, value: V, memoryCacheMapOptions?: MemoryCacheMapOptions<K, V>): void {
+    const { timeout, beforeDeleted } = this.handleMemoryCacheMapOptions(key, memoryCacheMapOptions);
+    this.cache.set(key, { value, timeout, beforeDeleted });
   }
 
   /**
@@ -62,9 +63,13 @@ export class MemoryCacheMap<K = string, V = any> {
     if (!cacheContent) {
       return;
     }
-    const { timeout } = cacheContent;
+    const { timeout, beforeDeleted, value } = cacheContent;
     if (timeout) {
       clearTimeout(timeout);
+    }
+
+    if (beforeDeleted) {
+      beforeDeleted(key, value);
     }
     this.cache.delete(key);
   }
@@ -72,25 +77,24 @@ export class MemoryCacheMap<K = string, V = any> {
   /**
    * Delete the cached value after the passed "time to live".
    */
-  private handleTimeToLive(key: K, memoryCacheMapOptions?: MemoryCacheMapOptions): number | undefined {
-    const memoryCacheMapDefaultOptionsCopy = JSON.parse(JSON.stringify(this.memoryCacheMapDefaultOptions)) as MemoryCacheMapOptions;
-    const { timeToLive } = Object.assign(memoryCacheMapDefaultOptionsCopy, memoryCacheMapOptions);
-    if (!timeToLive || timeToLive === this.defaultTimeToLive) {
-      return;
+  private handleMemoryCacheMapOptions(key: K, memoryCacheMapOptions?: MemoryCacheMapOptions<K, V>): Omit<CacheContent<K, V>, 'value'> {
+    const { timeToLive, beforeDeleted } = Object.assign({}, defaultMemoryCacheMapOptions, this.memoryCacheMapDefaultOptions, memoryCacheMapOptions);
+    if (!timeToLive || timeToLive === Infinity) {
+      return { beforeDeleted };
     }
 
     const timeout = setTimeout(() => {
-      this.cache.delete(key);
+      this.delete(key);
     }, timeToLive) as any as number;
 
-    return timeout;
+    return { timeout, beforeDeleted };
   }
 }
 
-interface CacheContent<T> {
+interface CacheContent<K, V> extends Pick<MemoryCacheMapOptions<K, V>, 'beforeDeleted'> {
+  value: V;
   /**
    * The timeout used to delete the cached value after the "time to live".
    */
   timeout?: number;
-  value: T;
 }
