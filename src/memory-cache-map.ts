@@ -45,7 +45,10 @@ export class MemoryCacheMap<K = string, V = any> {
       if (this.options.maxSize <= 0) {
         return;
       }
-      if (this.cache.size === this.options.maxSize) {
+      if (
+        this.cache.size === this.options.maxSize
+        && !this.has(key) // To make sure that the beforeDeleted callback is only called when the to be inserted item does not already exists.
+      ) {
         this.deleteOldestItem();
       }
       this.deleteItemIfExists(key); // To move the new item at the end (like newest) of the "map array".
